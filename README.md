@@ -38,3 +38,7 @@ This application provides an intuitive calculator interface that connects to a b
 ### Result & History Visualization
 - **Result Projection:** Designed a prominent `ResultDisplay` area to show final calculations and formatted sentence outcomes.
 - **History Tracking:** Added a `HistoryList` component that automatically renders a chronologically sorted list of all past user calculations fetched from the API.
+
+### Main Application Integration
+- **State Management:** Integrated all React components together in `App.js` using complex `useState` and `useEffect` hooks to track the entire application lifecycle.
+- **Debounced Calculations:** Implemented efficient debounce timers to prevent excessive API calls while the user is typing inputs.

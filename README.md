@@ -22,3 +22,7 @@ This application provides an intuitive calculator interface that connects to a b
 ### React Project Setup
 - **App Initialization:** Scaffolded the base Create React App structure and configured package dependencies.
 - **Global Styling:** Integrated SCSS files for global responsive design and styling resets.
+
+### API & Utilities
+- **Backend Integration:** Created `api.js` to securely communicate with the backend REST API using native Fetch.
+- **Conversion Engine:** Built a strict utility class to evaluate mathematical expressions, apply conversion factors, and process unit comparisons directly on the client side.

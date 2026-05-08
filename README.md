@@ -34,3 +34,7 @@ This application provides an intuitive calculator interface that connects to a b
 ### Calculator UI Components
 - **Input Forms:** Built the `ConversionForm` to handle two-way data binding for measurement values and unit dropdowns.
 - **Operator Selection:** Added the `OperatorSelector` specifically for arithmetic operations (+, -, *, /).
+
+### Result & History Visualization
+- **Result Projection:** Designed a prominent `ResultDisplay` area to show final calculations and formatted sentence outcomes.
+- **History Tracking:** Added a `HistoryList` component that automatically renders a chronologically sorted list of all past user calculations fetched from the API.

@@ -1,0 +1,33 @@
+// App specific modular styles
+
+// Ensure standard container paddings on completely small screens
+.container {
+  @media (max-width: 576px) {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+// Adjust type container margin on mobile so it takes up less space
+.type-container {
+  @media (max-width: 576px) {
+    margin-bottom: 1.5rem !important; // override bootstrap mb-5
+    
+    // Make gap smaller to fit well on small phone screens like iPhone SE
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+  }
+}
+
+// Action button container adjustments for mobile
+.action-container {
+  @media (max-width: 576px) {
+    gap: 0.5rem !important; // tighter gap on mobile
+  }
+}
+
+.operator-container {
+  @media (max-width: 576px) {
+    margin-bottom: 1.5rem !important;
+  }
+}

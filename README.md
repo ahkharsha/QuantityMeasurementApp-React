@@ -17,3 +17,8 @@ This application provides an intuitive calculator interface that connects to a b
 2. Open the project terminal and run `npm install`.
 3. Start the local development server with `npm start`.
 
+## Features Implemented
+
+### React Project Setup
+- **App Initialization:** Scaffolded the base Create React App structure and configured package dependencies.
+- **Global Styling:** Integrated SCSS files for global responsive design and styling resets.

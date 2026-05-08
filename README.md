@@ -30,3 +30,7 @@ This application provides an intuitive calculator interface that connects to a b
 ### Core UI Components
 - **Dynamic Selectors:** Developed the `TypeSelector` (Length, Volume, etc.) and `ActionSelector` (Convert, Compare) components.
 - **State Driven UI:** Ensured that components seamlessly update parent state via props based on user interaction.
+
+### Calculator UI Components
+- **Input Forms:** Built the `ConversionForm` to handle two-way data binding for measurement values and unit dropdowns.
+- **Operator Selection:** Added the `OperatorSelector` specifically for arithmetic operations (+, -, *, /).

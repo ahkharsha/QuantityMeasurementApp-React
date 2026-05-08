@@ -26,3 +26,7 @@ This application provides an intuitive calculator interface that connects to a b
 ### API & Utilities
 - **Backend Integration:** Created `api.js` to securely communicate with the backend REST API using native Fetch.
 - **Conversion Engine:** Built a strict utility class to evaluate mathematical expressions, apply conversion factors, and process unit comparisons directly on the client side.
+
+### Core UI Components
+- **Dynamic Selectors:** Developed the `TypeSelector` (Length, Volume, etc.) and `ActionSelector` (Convert, Compare) components.
+- **State Driven UI:** Ensured that components seamlessly update parent state via props based on user interaction.

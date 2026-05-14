@@ -3,7 +3,7 @@
  * Handles all HTTP communication with the JSON Server backend.
  */
 
-export const BASE_URL = "https://quantitymeasurementapp.onrender.com";
+export const BASE_URL = process.env.REACT_APP_API_URL || "https://quantitymeasurementapp.onrender.com";
 
 // Fetches measurement units for a given conceptual type.
 export async function getUnits(type) {

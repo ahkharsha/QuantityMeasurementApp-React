@@ -7,8 +7,7 @@ import ConversionForm from './components/ConversionForm';
 import ResultDisplay from './components/ResultDisplay';
 import HistoryList from './components/HistoryList';
 
-import { getUnits, getConversion, saveHistory, getHistory } from './services/api';
-import { applyConversion, evaluateExpression, compareValues } from './utils/conversion';
+import { getUnits, convertQuantity, compareQuantity, calculateQuantity, getHistory } from './services/api';
 import './App.scss';
 
 function App() {
@@ -28,18 +27,18 @@ function App() {
   
   const [historyData, setHistoryData] = useState([]);
 
-  // Load history on mount
+  // Load history on mount or when type changes
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const data = await getHistory();
+        const data = await getHistory(type);
         setHistoryData(data);
       } catch (err) {
         console.error("Failed to load history:", err);
       }
     };
     fetchHistory();
-  }, []);
+  }, [type]);
 
   // Load units when type changes
   useEffect(() => {
@@ -78,72 +77,31 @@ function App() {
     if (!fromUnit || !toUnit) return;
 
     try {
-      let resultVal, expression, resText, resUnit = '';
-
-      const numFromVal = Number(fromVal);
-      const numToVal = toVal === null || toVal === '' ? null : Number(toVal);
+      let resText, resUnit = '';
 
       if (action === "Conversion") {
-        if (fromUnit === toUnit) {
-          resultVal = numFromVal;
-        } else {
-          const conv = await getConversion(fromUnit, toUnit);
-          resultVal = applyConversion(numFromVal, conv);
-        }
-        setToVal(resultVal); // Update the TO box
-        expression = `${numFromVal} ${fromUnit} to ${toUnit}`;
-        resText = resultVal;
-        resUnit = toUnit;
+        const data = await convertQuantity(fromVal, fromUnit, toUnit, type);
+        setToVal(data.resultValue); // Update the TO box
+        resText = data.resultValue;
+        resUnit = data.resultUnit;
       } else if (action === "Comparison") {
-        if (numToVal === null) return;
-        
-        let normToVal;
-        if (fromUnit === toUnit) {
-          normToVal = numToVal;
-        } else {
-          const conv = await getConversion(toUnit, fromUnit);
-          normToVal = applyConversion(numToVal, conv);
-        }
-
-        resultVal = compareValues(numFromVal, normToVal);
-        
-        let cmpWord = "EQUAL TO";
-        if (resultVal === 1) cmpWord = "GREATER THAN";
-        if (resultVal === -1) cmpWord = "LESS THAN";
-
-        expression = `${numFromVal} ${fromUnit} ? ${numToVal} ${toUnit}`;
-        resText = `${numFromVal} ${fromUnit} is ${cmpWord} ${numToVal} ${toUnit}`;
+        if (toVal === null || toVal === '') return;
+        const data = await compareQuantity(fromVal, fromUnit, toVal, toUnit, type);
+        let cmpWord = data.resultString === "Equal" ? "EQUAL TO" : "NOT EQUAL TO";
+        resText = `${fromVal} ${fromUnit} is ${cmpWord} ${toVal} ${toUnit}`;
         resUnit = ""; // comparison text covers it
       } else { // Arithmetic
-        if (numToVal === null) return;
-
-        let normToVal;
-        if (fromUnit === toUnit) {
-          normToVal = numToVal;
-        } else {
-          const conv = await getConversion(toUnit, fromUnit);
-          normToVal = applyConversion(numToVal, conv);
-        }
-
-        resultVal = evaluateExpression(numFromVal, normToVal, operator);
-        expression = `${numFromVal} ${fromUnit} ${operator} ${numToVal} ${toUnit}`;
-        resText = resultVal;
-        resUnit = fromUnit;
+        if (toVal === null || toVal === '') return;
+        const data = await calculateQuantity(fromVal, fromUnit, toVal, toUnit, type, operator);
+        resText = data.resultValue;
+        resUnit = data.resultUnit;
       }
 
       setResultText(resText);
       setResultUnit(resUnit);
 
-      const record = {
-        type: type,
-        action: action,
-        expression: expression,
-        result: action === "Comparison" ? (resText.includes("EQUAL") ? "EQUAL TO" : (resText.includes("GREATER") ? "GREATER THAN" : "LESS THAN")) : `${resText} ${resUnit}`.trim(),
-        timestamp: new Date().toISOString()
-      };
-
-      await saveHistory(record);
-      const updatedHistory = await getHistory();
+      // Reload history from backend
+      const updatedHistory = await getHistory(type);
       setHistoryData(updatedHistory);
 
     } catch (e) {

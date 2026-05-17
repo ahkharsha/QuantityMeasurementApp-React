@@ -3,6 +3,25 @@ import React from 'react';
 const HistoryList = ({ records }) => {
   const safeRecords = Array.isArray(records) ? records : [];
 
+  const formatRecord = (r) => {
+    if (r.operation === 'CONVERT') {
+        return `${r.thisValue} ${r.thisUnit} to ${r.targetUnit || r.resultUnit} = ${r.resultValue} ${r.resultUnit}`;
+    }
+    if (r.operation === 'COMPARE') {
+        return `${r.thisValue} ${r.thisUnit} is ${r.resultString.toUpperCase()} ${r.thatValue} ${r.thatUnit}`;
+    }
+    if (r.operation === 'ADD') {
+        return `${r.thisValue} ${r.thisUnit} + ${r.thatValue} ${r.thatUnit} = ${r.resultValue} ${r.resultUnit}`;
+    }
+    if (r.operation === 'SUBTRACT') {
+        return `${r.thisValue} ${r.thisUnit} - ${r.thatValue} ${r.thatUnit} = ${r.resultValue} ${r.resultUnit}`;
+    }
+    if (r.operation === 'DIVIDE') {
+        return `${r.thisValue} ${r.thisUnit} ÷ ${r.thatValue} ${r.thatUnit} = ${r.resultValue} ${r.resultUnit}`;
+    }
+    return 'Unknown operation';
+  };
+
   return (
     <div className="mt-5 history-container">
       <h5 className="text-secondary fw-bold mb-3">
@@ -21,12 +40,8 @@ const HistoryList = ({ records }) => {
               <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
                 <strong>
                   <i className="bi bi-journal-check text-success me-2"></i>
-                  {r.expression} = {r.result}
+                  {formatRecord(r)}
                 </strong>
-                <span className="text-muted">
-                  <i className="bi bi-calendar3 me-1"></i>
-                  {new Date(r.timestamp).toLocaleString()}
-                </span>
               </li>
             ))
           )}

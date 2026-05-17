@@ -1,77 +1,88 @@
 /**
  * Quantity Measurement App - API Module
- * Handles all HTTP communication with the JSON Server backend.
+ * Integrated with Spring Boot Backend!
  */
 
-export const BASE_URL = process.env.REACT_APP_API_URL || "https://quantitymeasurementapp.onrender.com";
+export const BASE_URL = "/api/v1/quantities";
 
-// Fetches measurement units for a given conceptual type.
+// Spring Boot doesn't have a /units endpoint, so we hardcode the known units here.
+export const UNITS_DATA = {
+  Length: [
+    { symbol: "FEET", label: "Feet" },
+    { symbol: "INCHES", label: "Inches" },
+    { symbol: "YARDS", label: "Yards" },
+    { symbol: "CENTIMETERS", label: "Centimeters" }
+  ],
+  Volume: [
+    { symbol: "LITRE", label: "Litre" },
+    { symbol: "MILLILITER", label: "Milliliter" },
+    { symbol: "GALLON", label: "Gallon" }
+  ],
+  Weight: [
+    { symbol: "MILLIGRAM", label: "Milligram" },
+    { symbol: "GRAM", label: "Gram" },
+    { symbol: "KILOGRAM", label: "Kilogram" },
+    { symbol: "POUND", label: "Pound" },
+    { symbol: "TONNE", label: "Tonne" }
+  ],
+  Temperature: [
+    { symbol: "CELSIUS", label: "Celsius" },
+    { symbol: "FAHRENHEIT", label: "Fahrenheit" }
+  ]
+};
+
 export async function getUnits(type) {
-    const res = await fetch(`${BASE_URL}/units?type=${type}`);
-    
-    if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-    }
-    
+    return UNITS_DATA[type] || [];
+}
+
+export async function convertQuantity(value, fromUnit, toUnit, type) {
+    const payload = {
+        thisQuantityDTO: { value: Number(value), unit: fromUnit, measurementType: `${type}Unit` },
+        thatQuantityDTO: { value: 0, unit: toUnit, measurementType: `${type}Unit` }
+    };
+    const res = await fetch(`${BASE_URL}/convert`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Conversion failed");
     return await res.json();
 }
 
-// Fetches the conversion factor or formula between two units.
-export async function getConversion(from, to) {
-    const res = await fetch(`${BASE_URL}/conversions?from=${from}&to=${to}`);
-    
-    if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-    }
-    
-    const data = await res.json();
-    if (!data || data.length === 0) {
-        throw new Error("No conversion found");
-    }
-    
-    return data[0];
+export async function compareQuantity(val1, unit1, val2, unit2, type) {
+    const payload = {
+        thisQuantityDTO: { value: Number(val1), unit: unit1, measurementType: `${type}Unit` },
+        thatQuantityDTO: { value: Number(val2), unit: unit2, measurementType: `${type}Unit` }
+    };
+    const res = await fetch(`${BASE_URL}/compare`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Comparison failed");
+    return await res.json();
 }
 
-// Saves a calculation record to the history database.
-export async function saveHistory(record) {
-    try {
-        const res = await fetch(`${BASE_URL}/history`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(record)
-        });
+export async function calculateQuantity(val1, unit1, val2, unit2, type, operator) {
+    const payload = {
+        thisQuantityDTO: { value: Number(val1), unit: unit1, measurementType: `${type}Unit` },
+        thatQuantityDTO: { value: Number(val2), unit: unit2, measurementType: `${type}Unit` }
+    };
+    let endpoint = "";
+    if (operator === "+") endpoint = "/add";
+    if (operator === "-") endpoint = "/subtract";
+    if (operator === "/" || operator === "÷") endpoint = "/divide";
 
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
-
-        return await res.json();
-    } catch (error) {
-        console.error("Failed to save history:", error);
-        return null;
-    }
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Calculation failed");
+    return await res.json();
 }
 
-/**
- * Fetches all history records from the database.
- * Manually sorts them newest-first to ensure compatibility across all json-server versions.
- */
-export async function getHistory() {
+export async function getHistory(type) {
     try {
-        const res = await fetch(`${BASE_URL}/history`);
-        
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
-        
+        const res = await fetch(`${BASE_URL}/history/type/${type}Unit`);
+        if (!res.ok) return [];
         const data = await res.json();
-        
-        // Manually sort descending by timestamp so the newest is at the top
-        return data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } catch (error) {
-        console.error("Failed to fetch history data:", error);
+        return data.reverse(); // Newest first
+    } catch(e) {
         return [];
     }
 }
